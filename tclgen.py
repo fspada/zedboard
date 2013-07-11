@@ -19,10 +19,18 @@ blackListFunc = ["COMMUNICATION","END"]
 funcHW = filter(lambda x: x.find('specs').attrib['value'] not in blackListFunc,
 			map(lambda x: doc.find(".//partition/task[@id='" + x.find('task').attrib["id"] +"']"),taskHW))
 
-for f in funcHW:
-	print f[0].attrib['value']
+fileCode = doc.find(".//application/files/file").attrib['name']
+core = list(set(map(lambda x: x.find('specs').attrib['value'],funcHW)))
 
-for t in taskHW:
-	print t.find('task').attrib["id"]
+fileCodeTEST = "test.c"
+coreTEST = ["test_top"]
+
+# print fileCode
+
+# for f in funcHW:
+# 	print f[0].attrib['value']
+
+# for t in taskHW:
+# 	print t.find('task').attrib["id"]
 
 # xmlFile.close()

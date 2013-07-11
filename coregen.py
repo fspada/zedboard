@@ -1,12 +1,10 @@
-import xml.etree.ElementTree as Xml
+from tclgen import *
+import xml.etree.ElementTree as 
+import os
 
 xmlPath = "./xml/final_0.xml"
-# xmlFile = os.open(xmlPath, "r")
 
 doc = Xml.parse(xmlPath)
-
-# for elem in doc.findall(".//memory_element"):
-# 	print elem._children
 
 blackListImpl = ["BUS"]
 
@@ -19,19 +17,14 @@ blackListFunc = ["COMMUNICATION","END"]
 funcHW = filter(lambda x: x.find('specs').attrib['value'] not in blackListFunc,
 			map(lambda x: doc.find(".//partition/task[@id='" + x.find('task').attrib["id"] +"']"),taskHW))
 
+clock_period = doc.find("./architecture/system/system/specs[@name='clock']").attrib['value']
 fileCode = doc.find(".//application/files/file").attrib['name']
 core = list(set(map(lambda x: x.find('specs').attrib['value'],funcHW)))
 
 fileCodeTEST = "test.c"
 coreTEST = map(lambda x: "test_"+x, core)
 
-print coreTEST
-# print fileCode
+for c in coreTEST:
+	gen_tcl_core(fileCodeTEST,c,clock_period)
+	#os.system("vivado_hls -f cores/hls/core_"+c+"/solution1/script.tcl") #trovi il core in ./core_prj/solution1/impl/ip
 
-# for f in funcHW:
-# 	print f[0].attrib['value']
-
-# for t in taskHW:
-# 	print t.find('task').attrib["id"]
-
-# xmlFile.close()

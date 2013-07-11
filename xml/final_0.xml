@@ -57,6 +57,7 @@
 			<system id="artix7">
 				<specs name="type" value="FPGA"/>
 				<specs name="device" value="Artix7"/>
+				<specs name="clock" value="10" unit="ns"/>
 				<processing_elements>
 					<processing_element id="ICAP">
 						<specs name="type" value="GPP"/>

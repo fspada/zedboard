@@ -33,5 +33,5 @@ def gen_tcl_core(file_source,func_name,clock_period):
 	tcl_script.close()
 
 def gen_tcl_sys():
-	print "Hello World"
+	print "Unimplemented method"
 

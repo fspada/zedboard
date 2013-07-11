@@ -23,8 +23,9 @@ fileCode = doc.find(".//application/files/file").attrib['name']
 core = list(set(map(lambda x: x.find('specs').attrib['value'],funcHW)))
 
 fileCodeTEST = "test.c"
-coreTEST = ["test_top"]
+coreTEST = map(lambda x: "test_"+x, core)
 
+print coreTEST
 # print fileCode
 
 # for f in funcHW:

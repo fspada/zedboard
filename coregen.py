@@ -1,5 +1,5 @@
 from tclgen import *
-import xml.etree.ElementTree as 
+import xml.etree.ElementTree as Xml
 import os
 
 xmlPath = "./xml/final_0.xml"

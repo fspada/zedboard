@@ -21,7 +21,7 @@ def gen_tcl_core(file_source,func_name,clock_period):
 	tcl_script.write("open_project cores/hls/core_"+func_name+"\n")
 	tcl_script.write("set_top "+func_name+"\n")
 	tcl_script.write("add_files cores/src/"+file_source+"\n")
-	tcl_script.write("open_solution cores/hls/core_"+func_name+"solution1"+"\n")
+	tcl_script.write("open_solution cores/hls/core_"+func_name+"/solution1"+"\n")
 	tcl_script.write("set_part {xc7z020clg484-1}\n")
 	tcl_script.write("create_clock -period "+clock_period+"\n")
 

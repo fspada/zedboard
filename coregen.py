@@ -26,5 +26,7 @@ coreTEST = map(lambda x: "test_"+x, core)
 
 for c in coreTEST:
 	gen_tcl_core(fileCodeTEST,c,clock_period)
-	#os.system("vivado_hls -f cores/hls/core_"+c+"/solution1/script.tcl") #trovi il core in ./core_prj/solution1/impl/ip
+	os.chdir("./cores/hls")
+	os.system("vivado_hls -f core_"+c+"/solution1/script.tcl") #trovi il core in ./core_prj/solution1/impl/ip
+	os.chdir("../..")
 

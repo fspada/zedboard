@@ -2,3 +2,4 @@
 *.pyc
 cores/hls/*
 cores/src/*
+zedboard_prj/*

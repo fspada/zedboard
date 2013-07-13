@@ -30,3 +30,7 @@ for c in coreTEST:
 	os.system("vivado_hls -f core_"+c+"/solution1/script.tcl") #trovi il core in ./core_prj/solution1/impl/ip
 	os.chdir("../..")
 
+gen_tcl_sys(coreTEST)
+os.chdir("./zedboard_prj")
+os.system("vivado -mode tcl -source script_sys.tcl")
+os.chdir("..")

@@ -77,4 +77,5 @@ def gen_tcl_sys(cores):
 						 "launch_runs impl_1 -to_step write_bitstream\n" +
 						 "wait_on_run impl_1\n" +
 						 "exit\n")
+	tcl_sys_script.close()
 

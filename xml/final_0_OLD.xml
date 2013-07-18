@@ -46,7 +46,6 @@
 				</communication_element>
 				<communication_element id="axiLite">
 					<specs name="type" value="BUS"/>
-					<interface name="bus_0" type="AXILite"/>
 					<virtual>
 						<link slave="artix7" master="arm0"/>
 						<link slave="artix7" master="arm1"/>
@@ -56,21 +55,9 @@
 				</communication_element>
 			</communication_elements>
 			<system id="artix7">
-				<communication_elements>
-					<communication_element>
-						<virtual>
-							<link master="bus_0" slave="bus_1"/>
-							<link master="bus_0" slave="bus_2"/>
-							<link master="bus_3" slave="bus_4"/>
-							<link master="bus_5" slave="bus_8"/>
-							<link master="bus_0" slave="bus_6"/>
-							<link master="bus_7" slave="bus_0"/>
-						</virtual>
-					</communication_element>
-				</communication_elements>
 				<specs name="type" value="FPGA"/>
 				<specs name="device" value="Artix7"/>
-				<specs name="clock_period" value="10" unit="ns"/>
+				<specs name="clock" value="10" unit="ns"/>
 				<processing_elements>
 					<processing_element id="ICAP">
 						<specs name="type" value="GPP"/>
@@ -80,20 +67,12 @@
 					</processing_element>
 					<processing_element id="IP_0">
 						<specs name="type" value="IP"/>
-						<interface name="bus_1" type="AXILite"/>
-						<interface name="bus_2" type="AXIStream"/>
-						<interface name="bus_3" type="AXIStream"/>
 					</processing_element>
 					<processing_element id="IP_1">
 						<specs name="type" value="IP"/>
-						<interface name="bus_4" type="AXIStream"/>
-						<interface name="bus_5" type="AXIStream"/>
 					</processing_element>
 					<processing_element id="IP_2">
 						<specs name="type" value="IP"/>
-						<interface name="bus_6" type="AXILite"/>
-						<interface name="bus_7" type="AXILite"/>
-						<interface name="bus_8" type="AXIStream"/>
 					</processing_element>
 					<processing_element id="IP_3">
 						<specs name="type" value="IP"/>

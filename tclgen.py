@@ -1,17 +1,38 @@
 import os
 
-def gen_tcl_core(file_source,func_name,clock_period):
+def gen_tcl_core(file_source, func_name, clock_period, ip_interfaces, from_int, to_int):
 	os.system("cp -r src/ cores/")
 	os.system("mkdir -p cores/hls/core_"+func_name+"/solution1/")
 
 	tcl_directives = open("cores/hls/core_"+func_name+"/solution1/directives.tcl","w")
 
-	tcl_directives.write("set_directive_interface -mode ap_none "+ func_name + " a\n" +
-						 "set_directive_interface -mode ap_none "+ func_name + " b\n" +
-						 "set_directive_interface -mode ap_ctrl_hs -register "+ func_name + " return\n" +
-						 'set_directive_resource -core AXI4LiteS -metadata "-bus_bundle slv0" '+ func_name +' a\n' +
-						 'set_directive_resource -core AXI4LiteS -metadata "-bus_bundle slv0" '+ func_name +' b\n' +
-						 'set_directive_resource -core AXI4LiteS -metadata "-bus_bundle slv0" '+ func_name +' return\n')
+	if not ip_interfaces:
+		tcl_directives.write("set_directive_interface -mode ap_none "+ func_name + " a\n" +
+							 "set_directive_interface -mode ap_ctrl_hs -register "+ func_name + " return\n" +
+							 'set_directive_resource -core AXI4LiteS -metadata "-bus_bundle slv0" '+ func_name +' a\n' +
+							 'set_directive_resource -core AXI4LiteS -metadata "-bus_bundle slv0" '+ func_name +' return\n')
+	else:
+		for (ip,interf,m_s,ty) in ip_interfaces:
+			if ty=='AXIStream':
+				interface = 'ap_fifo'
+				resource = 'AXI4Stream'
+			else:
+				interface = 'ap_none'
+				resource = 'AXI4LiteS'
+			if m_s == 'S':
+				if from_int == 'BUS':
+					tcl_directives.write("set_directive_interface -mode ap_none "+ func_name + " "+interf+"\n" +
+										 'set_directive_resource -core AXI4LiteS -metadata "-bus_bundle '+interf+'" '+ func_name +' '+interf+'\n')				
+				else:
+					tcl_directives.write("set_directive_interface -mode "+ interface +" "+ func_name + " "+interf+"\n" +
+										 'set_directive_resource -core '+resource+' -metadata "-bus_bundle '+interf+'" '+ func_name +' '+interf+'\n')
+			else:
+				if to_int == 'BUS':
+					tcl_directives.write("set_directive_interface -mode ap_ctrl_hs -register "+ func_name + " return\n" +
+										 'set_directive_resource -core AXI4LiteS -metadata "-bus_bundle '+interf+'" '+ func_name +' return\n')
+				else:
+					tcl_directives.write("set_directive_interface -mode ap_fifo "+ func_name + " "+interf+"\n" +
+										 'set_directive_resource -core AXI4Stream -metadata "-bus_bundle '+interf+'" '+ func_name +' '+interf+'\n')
 
 	tcl_directives.close()
 

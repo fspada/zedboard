@@ -51,7 +51,12 @@ def gen_tcl_core(file_source, func_name, clock_period, ip_interfaces, from_int, 
 
 	tcl_script.close()
 
-def gen_tcl_sys(cores):
+def gen_tcl_sys(cores, connections, vfunc_ipname):
+	num_stream = 0
+	for k in connections:
+		if k[0] != 'BUS' and connections[k][0][0] == 'BUS':
+			num_stream += 1
+	num_ports_int = len(cores) - num_stream
 	os.system("mkdir -p zedboard_prj/")
 	tcl_sys_script = open("zedboard_prj/script_sys.tcl","w")
 
@@ -71,18 +76,45 @@ def gen_tcl_sys(cores):
 						 "startgroup\n" +
 						 "create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:1.0 xlconcat_1\n" +
 						 "endgroup\n" +
-						 "set_property -dict [list CONFIG.NUM_PORTS {"+ str(len(cores)) +"}] [get_bd_cells /xlconcat_1]\n" +
+						 "set_property -dict [list CONFIG.NUM_PORTS {"+ str(num_ports_int) +"}] [get_bd_cells /xlconcat_1]\n" +
 						 "connect_bd_net [get_bd_pins /processing_system7_1/IRQ_F2P] [get_bd_pins /xlconcat_1/dout]\n" +
 						 "set_property ip_repo_paths  {"+ ' '.join(map(lambda c: "../cores/hls/core_"+ c +"/solution1/impl/ip",cores)) +"} [current_fileset]\n" + 
 						 "update_ip_catalog\n")
-	i = 0
 	for c in cores:
 		tcl_sys_script.write("startgroup\n"+
 							 "create_bd_cell -type ip -vlnv xilinx.com:hls:"+ c +":1.0 "+ c +"_1\n" +
-							 "endgroup\n" +
-							 'apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_1/M_AXI_GP0" }  [get_bd_intf_pins /'+c+'_1/S_AXI_SLV0]\n' +
-							 "connect_bd_net [get_bd_pins /"+c+"_1/interrupt] [get_bd_pins /xlconcat_1/In"+str(i)+"]\n")
+							 "endgroup\n")
+	rest_vfunc_ipname = vfunc_ipname
+	i = 0
+	for k in connections:
+		if k[0] == 'BUS':
+			for ip in connections[k]:
+				vfunc = filter(lambda x: x[1] == ip[0], vfunc_ipname)[0][0]
+				tcl_sys_script.write('apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_1/M_AXI_GP0" }  [get_bd_intf_pins /test_'+vfunc+'_1/S_AXI_'+ip[1].upper()+']\n')
+		elif connections[k][0][0] == 'BUS':
+			vfunc = filter(lambda x: x[1] == k[0], vfunc_ipname)[0][0]
+			tcl_sys_script.write('apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_1/M_AXI_GP0" }  [get_bd_intf_pins /test_'+vfunc+'_1/S_AXI_'+k[1].upper()+']\n')
+			tcl_sys_script.write("connect_bd_net [get_bd_pins /test_"+vfunc+"_1/interrupt] [get_bd_pins /xlconcat_1/In"+str(i)+"]\n")
+			#print set([(vfunc, k[0])])
+			rest_vfunc_ipname = list(set(rest_vfunc_ipname) - set([(vfunc, k[0])]))
+			i += 1
+		else:
+			vfunc1 = filter(lambda x: x[1] == k[0], vfunc_ipname)[0][0]
+			vfunc2 = filter(lambda x: x[1] == connections[k][0][0], vfunc_ipname)[0][0]
+			tcl_sys_script.write('connect_bd_intf_net [get_bd_intf_pins /test_'+vfunc1+'_1/'+k[1].upper()+'] [get_bd_intf_pins /test_'+vfunc2+'_1/'+connections[k][0][1].upper()+']\n')
+			#print set([(vfunc1, k[0])])
+			rest_vfunc_ipname = list(set(rest_vfunc_ipname) - set([(vfunc1, k[0])]))
+
+	print rest_vfunc_ipname
+	for r in rest_vfunc_ipname:
+		tcl_sys_script.write('apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_1/M_AXI_GP0" }  [get_bd_intf_pins /test_'+r[0]+'_1/S_AXI_SLV0]\n')
+		tcl_sys_script.write("connect_bd_net [get_bd_pins /test_"+r[0]+"_1/interrupt] [get_bd_pins /xlconcat_1/In"+str(i)+"]\n")
 		i += 1
+
+#							  +
+#							 'apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config {Master "/processing_system7_1/M_AXI_GP0" }  [get_bd_intf_pins /'+c+'_1/S_AXI_SLV0]\n' +
+#							 "connect_bd_net [get_bd_pins /"+c+"_1/interrupt] [get_bd_pins /xlconcat_1/In"+str(i)+"]\n")
+
 	tcl_sys_script.write("save_bd_design\n" +
 						 "validate_bd_design\n" +
 						 "generate_target {synthesis simulation implementation} [get_files  ./vivado_prj/vivado_prj.srcs/sources_1/bd/zynq_bd/zynq_bd.bd]\n" +
